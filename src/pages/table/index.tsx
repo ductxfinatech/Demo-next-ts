@@ -1,141 +1,65 @@
+
+import { type Item2, data2, dataListCollumn2 } from './data';
+import { MRT_Localization_VI } from 'material-react-table/locales/vi';
+import { ExportToCsv } from 'export-to-csv';
+import PopupState, { bindTrigger, bindPopover, bindMenu } from 'material-ui-popup-state';
 import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Tooltip, Button, IconButton, ListItemIcon, List, ListItem, Popover, ListItemText, MenuItem, Menu } from '@mui/material';
+
+import {
+    Settings as SettingsIcon,
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+    AccessTime as AccessTimeIcon,
+    Clear as ClearIcon,
+    Done as DoneIcon,
+    DragIndicator as DragIndicatorIcon,
+    DashboardCustomize as DashboardCustomizeIcon,
+    Add as AddIcon,
+    GetApp as GetAppIcon,
+    ArrowDropDown as ArrowDropDownIcon
+} from '@mui/icons-material';
+
 import MaterialReactTable, {
     type MRT_ColumnDef,
     type MRT_RowSelectionState,
-    type MRT_Icons
+    type MRT_Icons,
+    MRT_Row,
+    MRT_FullScreenToggleButton,
+    MRT_ShowHideColumnsButton,
+    MRT_GlobalFilterTextField,
+    MRT_TablePagination,
+    MRT_ToolbarAlertBanner,
+    MRT_PaginationState,
+    MRT_SortingState
 } from 'material-react-table';
-import { Box } from '@mui/material';
-import { data, data2, dataListCollumn, dataListCollumn2 } from './data';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import DoneIcon from '@mui/icons-material/Done';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ClearIcon from '@mui/icons-material/Clear';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { MRT_Localization_VI } from 'material-react-table/locales/vi';
+
 
 const Example = () => {
 
-    // Set Header
-    const columns = useMemo(() => {
-        return dataListCollumn.map((item: any) => {
-            return {
-                accessorKey: item.key,
-                header: item.label,
-                type: item.type,
-                // Header: () => (
-                //     <div style={{ width: '100%', display: 'flex', alignItems: 'center', position: 'relative' }}> <Box sx={{ pr: 3 }}>{item.label}</Box> <ArrowDropDownIcon sx={{ position: 'absolute', right: '0', top: '0' }} /> </div>
-                // ),
-                // muiTableHeadCellProps: {
-                //     align: item.type === 'number' ? 'right' : 'left',
-                //     width: '500px'
-                // },
-                // muiTableBodyCellProps: {
-                //     align: 'right',
-                //     width: '100%'
-                // },
-            }
-        }) as MRT_ColumnDef<(typeof data)[0]>[]
-    }, [])
+    // -------------- Data and Fetching state -----------------
+    const [listItem, setListItem] = useState<Item2[]>(data2);
+    const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefetching, setIsRefetching] = useState(false);
+    const [rowCount, setRowCount] = useState(0);
 
-    const columns2 = useMemo(() => {
-        return dataListCollumn2.map((item: any) => {
-            return {
-                accessorKey: item.key,
-                header: item.label,
-                // type: item.type,
-                minSize: item.minSize,
-                maxSize: item.maxSize,
-                size: item.size,
-                Header: (cell) => (
-                    <Box sx={{ padding: '0 !important' }}>{item.label}</Box>
-                ),
-                Cell: ({ cell }) => {
-                    switch (item.type) {
-                        case 'setting': {
-                            return <><SettingsIcon sx={{}} /></>
-                        }
-                        case 'icon': {
-                            switch (cell.getValue<any>()) {
-                                case 1: {
-                                    return <>
-                                        <Tooltip title="Duyệt">
-                                            <IconButton>
-                                                <DoneIcon sx={{ color: '#04A857' }} />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </>
-                                }
-                                case 2: {
-                                    return <>
-                                        <Tooltip title="Chờ duyệt">
-                                            <IconButton>
-                                                <AccessTimeIcon sx={{ color: '#FFB80B' }} />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </>
-                                }
-                                case 3: {
-                                    return <>
-                                        <Tooltip title="Từ chối">
-                                            <IconButton>
-                                                <ClearIcon sx={{ color: '#E6544F' }} />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </>
-                                }
-                                default: {
-                                    return <>
-                                        <ClearIcon sx={{ color: '#E6544F' }} />
-                                    </>
-                                }
-                            }
-                        }
-                        default: {
-                            return <>{cell.getValue<string>()}</>
-                        }
+    // ----------- End Data and Fetching state -----------------
 
-                    }
-                },
-                muiTableHeadCellProps: {
-                    align: (item.type === 'text')
-                        ? 'left' :
-                        ((item.type === 'number')
-                            ? 'right' : 'center'),
-                    sx: {
-                        // maxWidth: item.maxSize,
-                        padding: '8px 12px !important',
-                    }
-                },
-                muiTableBodyCellProps: {
-                    align: (item.type === 'text')
-                        ? 'left' :
-                        ((item.type === 'number')
-                            ? 'right' : 'center'),
-                    sx: {
-                        // maxWidth: item.maxSize,
-                    }
-                },
-            }
-        }) as MRT_ColumnDef<(typeof data2)[0]>[]
-    }, [])
 
-    // Set Data
-    const rows = data
-    const rows2 = data2
-
+    // ---------------- Table state ------------------------
+    // Pagination cfg
+    const [pagination, setPagination] = useState<MRT_PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    });
+    // Global filter
+    const [globalFilter, setGlobalFilter] = useState('');
+    // Sorting
+    const [sorting, setSorting] = useState<MRT_SortingState>([]);
     // Row select
     const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-
-    useEffect(() => {
-        //do something when the row selection changes...
-        console.info({ rowSelection });
-    }, [rowSelection]);
-
+    // Icon Table
     const iconsTable: Partial<MRT_Icons> = {
         // ArrowDownwardIcon: () => <ArrowDownwardIcon />,
         // ClearAllIcon: () => <Box>d</Box>,
@@ -149,103 +73,398 @@ const Example = () => {
         // FullscreenIcon: () => <Box>d</Box>,
         // SearchIcon: (props: any) => <Box>d</Box>,
         // SearchOffIcon: () => <Box>d</Box>,
-        // MoreVertIcon: () => <Box>d</Box>,
+        MoreVertIcon: () => <ArrowDropDownIcon />,
         // MoreHorizIcon: () => <Box>d</Box>,
         // SortIcon: <Box>fg</Box>,
         // PushPinIcon: <Box>d</Box>,
         // VisibilityOffIcon: () => <Box>d</Box>,
-        ViewColumnIcon: () => <DashboardCustomizeIcon />,
+        ViewColumnIcon: () => <DashboardCustomizeIcon sx={{ color: '#04A857', backgroundColor: '#DDF6E8' }} />,
     }
+    // Set Header Table
+    const columns2 = useMemo(() => {
+        return dataListCollumn2.map((item: any) => {
+            return {
+                accessorKey: item.key,
+                header: item.label,
+                // type: item.type,
+                minSize: item.minSize,
+                maxSize: item.maxSize,
+                size: item.size,
+                enableClickToCopy: item.copy,
+                enableResizing: !(item.type === 'setting' || item.type === "icon"),
+                Header: (cell) => (
+                    <Box sx={{ padding: (item.align !== 'left') ? '0 0 0 6px' : '0 0px 0 0' }}>{item.label}</Box>
+                ),
+                Cell: ({ cell }) => {
+                    switch (item.type) {
+                        case 'setting': {
+                            return <>
+                                <PopupState variant="popover" popupId="demo-popup-popover">
+                                    {(popupState) => (
+                                        <div>
+                                            <IconButton sx={{ color: '#000' }} {...bindTrigger(popupState)} >
+                                                <SettingsIcon />
+                                            </IconButton>
+
+                                            <Menu {...bindMenu(popupState)}>
+                                                <MenuItem onClick={() => { handleShow(cell.row.original.id, popupState.close) }} >Xem</MenuItem>
+                                                <MenuItem onClick={() => { handleEdit(cell.row.original.id, popupState.close) }} >Sửa</MenuItem>
+                                                <MenuItem sx={{ color: '#E6544F' }} onClick={() => { handleDelete(cell.row.original.id, popupState.close) }} >Xóa</MenuItem>
+                                                <MenuItem onClick={() => { handleActive(cell.row.original.id, popupState.close) }} >Inactive</MenuItem>
+                                            </Menu>
+                                        </div>
+                                    )}
+                                </PopupState>
+                            </>
+                        }
+                        case 'icon': {
+                            switch (cell.getValue<any>()) {
+                                case 1: {
+                                    return <Tooltip title='Duyệt' arrow>
+                                        <DoneIcon sx={{ color: '#04A857' }} />
+                                    </Tooltip>
+                                }
+                                case 2: {
+                                    return <Tooltip title='Chờ duyệt' arrow>
+                                        <AccessTimeIcon sx={{ color: '#FFB80B' }} />
+                                    </Tooltip>
+                                }
+                                case 3: {
+                                    return <Tooltip title='Từ chối' arrow>
+                                        <ClearIcon sx={{ color: '#E6544F' }} />
+                                    </Tooltip>
+                                }
+                                default: {
+                                    return <Tooltip title='Từ chối' arrow>
+                                        <ClearIcon sx={{ color: '#E6544F' }} />
+                                    </Tooltip>
+                                }
+                            }
+                        }
+                        default: {
+                            return <>{cell.getValue<string>()}</>
+                        }
+
+                    }
+                },
+                muiTableHeadCellProps: {
+                    align: item.align,
+                    sx: {
+                        // maxWidth: item.maxSize,
+                        padding: '8px 12px !important',
+
+                    }
+                },
+                muiTableBodyCellProps: {
+                    align: item.align,
+                    sx: {
+                        // maxWidth: item.maxSize,
+                    }
+                },
+
+                enableColumnActions: true,
+
+                renderColumnActionsMenuItems: ({ closeMenu, column, table }) => {
+                    return [
+                        // <MenuItem
+                        //     onClick={() => {
+                        //         // do something
+                        //         closeMenu();
+                        //     }}
+                        // >
+                        //     Custom Menu Item 1
+                        // </MenuItem>,
+                        // <MenuItem
+                        //     onClick={() => {
+                        //         // do something
+                        //         closeMenu();
+                        //     }}
+                        // >
+                        //     Custom Menu Item 2
+                        // </MenuItem>,
+                        <input></input>
+                    ];
+                },
+
+            }
+        }) as MRT_ColumnDef<(typeof data2)[0]>[]
+    }, [])
+
+    // ---------------- End Table state ------------------------
+
+
+    // ------------- Common -----------------
+
+    const csvOptions = {
+        fieldSeparator: ',',
+        quoteStrings: '"',
+        decimalSeparator: '.',
+        showLabels: true,
+        useBom: true,
+        useKeysAsHeaders: false,
+        headers: dataListCollumn2.map((c) => c.label),
+    };
+    const csvExporter = new ExportToCsv(csvOptions);
+
+    // ------------ End Common --------------
+
+    // -------------- Function -----------------------
+    // Handle Action
+    const handleShow = (id: number, closePopup: Function) => {
+        console.log('See Detail', id);
+        closePopup();
+    }
+    const handleEdit = (id: number, closePopup: Function) => {
+        console.log('Edit', id);
+        closePopup();
+    }
+    const handleDelete = (id: number, closePopup: Function) => {
+        console.log('Delete', id);
+        closePopup();
+    }
+    const handleActive = (id: number, closePopup: Function) => {
+        console.log('Active', id);
+        closePopup();
+    }
+    // Export CSV
+    const handleExportRows = (rows: MRT_Row<Item2>[]) => {
+        csvExporter.generateCsv(rows.map((row) => row.original));
+    };
+
+    // -------------- End Function -----------------------
+
+    useEffect(() => {
+        //do something when the row selection changes...
+        console.info({ rowSelection });
+    }, [rowSelection]);
+
 
     return (
-        <Box sx={{ minHeight: '100vh', padding: '20px 12px 20px 264px' }}>
+        <Box sx={{ minHeight: '100vh', padding: '20px 20px 20px 264px' }}>
 
-            <MaterialReactTable
-                columns={columns2}
-                data={rows2}
-                icons={iconsTable}
-                getRowId={(row) => row.id.toString()}
+            <Box className="table-generic"
+                sx={{
+                    '& > div.MuiPaper-root': {
+                        boxShadow: 'none !important'
+                    }
+                }}>
+                <MaterialReactTable
+                    columns={columns2}
+                    data={listItem}
 
-                onRowSelectionChange={setRowSelection}
-                enableRowSelection
-                enableColumnResizing
-                enableColumnOrdering
-                enableColumnDragging={false}
-                enableColumnActions={false}
-                enablePinning
-                enableStickyHeader
-                enableFullScreenToggle={false}
-                enableDensityToggle={false}
-                positionToolbarAlertBanner="bottom"
+                    state={{
+                        rowSelection,
+                        pagination,
+                        globalFilter,
+                        // sorting,
+                        showGlobalFilter: true,
+                    }}
 
-                enableColumnFilters={false}
-                // globalFilterModeOptions={['contains']}
-                // enableGlobalFilterModes={true}
-                positionGlobalFilter="left"
-                localization={MRT_Localization_VI}
-                muiSearchTextFieldProps={{
-                    placeholder: 'Search Column Options',
-                    sx: {
-                        minWidth: '18rem',
-                        '& input': { padding: '8px' },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#000 !important'
-                        }
-                    },
-                    variant: 'outlined',
-                }}
+                    icons={iconsTable}
+                    getRowId={(row) => row.id.toString()}
+                    onRowSelectionChange={setRowSelection}
+                    enableRowSelection
+                    enableColumnResizing
+                    enableColumnOrdering
+                    enableColumnDragging={false}
+                    enablePinning
+                    enableStickyHeader
+                    manualPagination
+                    rowCount={100}
 
-                state={{ rowSelection }}
+                    positionToolbarAlertBanner="bottom"
+                    enableFilterMatchHighlighting={true}
+                    globalFilterFn="contains"
 
-                initialState={{
-                    pagination: { pageSize: 20, pageIndex: 0 },
-                    showGlobalFilter: true,
-                }}
-                muiTableContainerProps={{ sx: { maxHeight: '300px' } }}
-                muiTableHeadProps={{
-                    sx: {
-                        '& tr': {
-                        },
-                        '& th': {
-                            border: '1px solid #CFD6DD',
-                            backgroundColor: '#E2E6EA',
-                            fontSize: '12px',
-                            lineHeight: '16px',
-                            // minWidth: 'unset'
-
-                            '& .Mui-TableHeadCell-ResizeHandle-Wrapper': {
-                                right: '-4px',
-                                opacity: '0'
-                            },
-                            '& .Mui-TableHeadCell-Content-Labels': {
-                                padding: '0'
+                    localization={MRT_Localization_VI}
+                    muiSearchTextFieldProps={{
+                        placeholder: 'Tìm kiếm',
+                        sx: {
+                            minWidth: '18rem',
+                            '& .MuiSvgIcon-root': { color: '#828D9A', fontSize: '22px' },
+                            '& input': { padding: '8px', fontSize: '14px' },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                border: '1px solid #CFD6DD !important'
                             }
                         },
-                    }
-                }}
-                muiTableHeadRowProps={{
-                    sx: {
-                    }
-                }}
-                muiTableBodyRowProps={{
-                    sx: {
-                        height: 'auto !important',
+                        variant: 'outlined',
+                    }}
 
-                        '& td': {
-                            border: '1px solid #CFD6DD',
-                            padding: '8px 12px !important',
+                    muiToolbarAlertBannerProps={
+                        isError
+                            ? {
+                                color: 'error',
+                                children: 'Error loading data',
+                            }
+                            : undefined
+                    }
+
+                    muiTableContainerProps={{
+                        sx: {
+                            maxHeight: '600px',
+
+                            '& .Mui-selected': {
+                                backgroundColor: '#04a85714 !important',
+                            },
+                            '& .Mui-selected:hover': {
+                                backgroundColor: '#0cc00042 !important',
+                            }
                         }
-                    }
-                }}
-                muiTableBodyCellProps={{
-                    sx: {
-                        fontWeight: 400,
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                    }
-                }}
+                    }}
+                    muiTableHeadProps={{
+                        sx: {
+                        }
+                    }}
+                    muiTableHeadRowProps={{
+                        sx: {
+                            '& th': {
+                                borderColor: '#CFD6DD',
+                                borderWidth: '1px 1px 2px 0',
+                                borderStyle: 'solid',
+                                backgroundColor: '#E2E6EA',
+                                fontSize: '12px',
+                                lineHeight: '16px',
+                                verticalAlign: 'middle',
 
-            />
+                                '& .Mui-checked': {
+                                    color: '#04A857',
+                                },
+                                '& .MuiCheckbox-indeterminate': {
+                                    color: '#04A857 ',
+                                },
+                                '& .Mui-TableHeadCell-ResizeHandle-Wrapper': {
+                                    right: '-3px',
+                                    opacity: '0.15',
+                                    '& hr, hr:active': {
+                                        borderColor: '#000',
+                                        height: '32px'
+                                    }
+                                },
+                                '& .Mui-TableHeadCell-Content-Labels': {
+                                    padding: '0'
+                                }
+                            },
+                            '& th:nth-child(1)': {
+                                borderWidth: '1px 1px 2px 1px',
+                                padding: "4px 12px !important",
+                                width: '48px'
+                            }
+                        }
+                    }}
+                    muiTableBodyRowProps={{
+                        sx: {
+                            height: 'auto !important',
+
+                            '& td': {
+                                borderColor: '#CFD6DD',
+                                borderWidth: '0 1px 1px 0',
+                                borderStyle: 'solid',
+                                padding: '8px 12px !important',
+
+                                '& .Mui-checked': {
+                                    color: '#04A857',
+                                },
+                            },
+
+                            '& td:nth-child(1)': {
+                                borderWidth: '0 1px 1px 1px'
+                            },
+                        }
+                    }}
+                    muiTableBodyCellProps={{
+                        sx: {
+                            fontWeight: 400,
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                        }
+                    }}
+                    // muiSelectCheckboxProps={{
+                    //     sx: {
+
+                    //     }
+                    // }}
+
+                    renderTopToolbar={({ table }) => (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0' }}>
+                            <Box
+                                sx={{
+                                    '& .MuiInputBase-root.MuiOutlinedInput-root': {
+                                        width: '220px',
+                                        padding: '0 0 0 4px'
+                                    }
+                                }}>
+                                <MRT_GlobalFilterTextField table={table} />
+                            </Box>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                '& button': {
+                                    fontSize: '14px',
+                                    lineHeight: '20px'
+                                }
+                            }}>
+
+                                <Button variant="contained" startIcon={<GetAppIcon />}
+                                    disabled={
+                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                    }
+                                    onClick={() => { handleExportRows(table.getSelectedRowModel().rows) }}
+                                    sx={{
+                                        backgroundColor: '#DDF6E8', color: '#04A857',
+                                        padding: '6px 12px',
+                                        textTransform: 'unset',
+                                        height: '32px',
+                                        "&:hover": { bgcolor: "#a6e6c2" },
+                                        '& .MuiSvgIcon-root': {
+                                            fontSize: '20px'
+                                        }
+                                    }}
+                                >
+                                    Xuất Excel
+                                </Button>
+
+                                <Button variant="contained" startIcon={<AddIcon />} sx={{
+                                    backgroundColor: '#04A857', color: '#DDF6E8', marginLeft: '8px',
+                                    padding: '6px 12px',
+                                    textTransform: 'unset',
+                                    height: '32px',
+                                    "&:hover": { bgcolor: "#028343" },
+                                    '& .MuiSvgIcon-root': {
+                                        fontSize: '20px'
+                                    }
+                                }}>
+                                    Thêm mới
+                                </Button>
+                                <Box>
+                                    <MRT_ShowHideColumnsButton table={table} sx={{
+                                        height: '40px',
+                                        padding: '5px',
+                                        margin: '0 12px',
+                                        '& .MuiSvgIcon-root': {
+                                            fontSize: '30px'
+                                        }
+                                    }} />
+                                </Box>
+                            </Box>
+                        </Box>
+                    )}
+
+                    renderBottomToolbar={({ table }) => (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #CFD6DD' }}>
+                            <Box sx={{
+                                '& .MuiAlert-message': {
+                                    backgroundColor: '#fff !important'
+                                }
+                            }}>
+                                <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
+                            </Box>
+                            <Box sx={{ backgroundColor: '#fff !important' }}>
+                                <MRT_TablePagination table={table} />
+                            </Box>
+                        </Box>
+                    )}
+                />
+            </Box>
         </Box>
     );
 };

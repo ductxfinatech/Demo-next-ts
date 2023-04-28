@@ -117,6 +117,8 @@ export const dataListCollumn2 = [
         minSize: 0,
         maxSize: 500,
         size: 250,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'fundCode',
@@ -124,7 +126,9 @@ export const dataListCollumn2 = [
         type: 'text',
         minSize: 0,
         maxSize: 500,
-        size: 100
+        size: 100,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'memberAccount',
@@ -132,7 +136,9 @@ export const dataListCollumn2 = [
         type: 'text',
         minSize: 0,
         maxSize: 500,
-        size: 150
+        size: 150,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'fundType',
@@ -140,7 +146,9 @@ export const dataListCollumn2 = [
         type: 'text',
         minSize: 0,
         maxSize: 500,
-        size: 96
+        size: 80,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'company',
@@ -148,7 +156,9 @@ export const dataListCollumn2 = [
         type: 'text',
         minSize: 0,
         maxSize: 500,
-        size: 294
+        size: 294,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'price',
@@ -156,7 +166,9 @@ export const dataListCollumn2 = [
         type: 'number',
         minSize: 0,
         maxSize: 500,
-        size: 100
+        size: 100,
+        align: 'right',
+        copy: false,
     },
     {
         key: 'volumn',
@@ -164,7 +176,9 @@ export const dataListCollumn2 = [
         type: 'number',
         minSize: 0,
         maxSize: 500,
-        size: 148
+        size: 148,
+        align: 'right',
+        copy: false,
     },
     {
         key: 'code',
@@ -172,7 +186,9 @@ export const dataListCollumn2 = [
         type: 'text',
         minSize: 0,
         maxSize: 500,
-        size: 80
+        size: 100,
+        align: 'left',
+        copy: false,
     },
     {
         key: 'status',
@@ -180,7 +196,9 @@ export const dataListCollumn2 = [
         type: 'icon',
         minSize: 0,
         maxSize: 500,
-        size: 60
+        size: 80,
+        align: 'center',
+        copy: false,
     },
     {
         key: 'setting',
@@ -188,11 +206,26 @@ export const dataListCollumn2 = [
         type: 'setting',
         minSize: 0,
         maxSize: 500,
-        size: 60
+        size: 60,
+        align: 'center',
+        copy: false,
     },
 ]
 
-export const data2 = [
+export type Item2 = {
+    id: number;
+    fundName: string;
+    fundCode: string,
+    memberAccount: string,
+    fundType: string,
+    company: string,
+    price: string,
+    volumn: string,
+    code: string,
+    status: 1 | 2 | 3
+}
+
+export const data2: Item2[] = [
     {
         id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
         fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
@@ -213,7 +246,7 @@ export const data2 = [
         fundType: 'ETF',
         company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
         price: '20.900',
-        volumn: '6.000.000',
+        volumn: '55.000.000',
         code: 'VN30',
         status: 3
     },
@@ -225,9 +258,21 @@ export const data2 = [
         fundType: 'ETF',
         company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
         price: '20.900',
-        volumn: '6.000.000',
+        volumn: '6.0040.000',
         code: 'VN30',
         status: 2
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '42.000.000',
+        code: 'VN30',
+        status: 1
     },
     {
         id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
@@ -240,5 +285,125 @@ export const data2 = [
         volumn: '6.000.000',
         code: 'VN30',
         status: 1
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '55.000.000',
+        code: 'VN30',
+        status: 3
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '6.0040.000',
+        code: 'VN30',
+        status: 2
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '42.000.000',
+        code: 'VN30',
+        status: 1
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '6.000.000',
+        code: 'VN30',
+        status: 1
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '55.000.000',
+        code: 'VN30',
+        status: 3
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '6.0040.000',
+        code: 'VN30',
+        status: 2
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '42.000.000',
+        code: 'VN30',
+        status: 1
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '6.000.000',
+        code: 'VN30',
+        status: 1
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '55.000.000',
+        code: 'VN30',
+        status: 3
+    },
+    {
+        id: Math.floor(Math.random() * (1000000 - 1 + 1)) + 1,
+        fundName: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        fundCode: 'VBAAVNVX',
+        memberAccount: '32198742387',
+        fundType: 'ETF',
+        company: 'VietcomBank - Joint Stock Commercial Bank for Foreign Trade of Vietnam',
+        price: '20.900',
+        volumn: '6.0040.000',
+        code: 'VN30',
+        status: 2
     },
 ]
