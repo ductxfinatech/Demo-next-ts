@@ -1,4 +1,4 @@
-import { type Item2, data2, dataListCollumn2 } from "./data";
+import { type Item2, data2, dataListCollumn2, ParamObject } from "./data";
 import { MRT_Localization_VI } from "material-react-table/locales/vi";
 import { ExportToCsv } from "export-to-csv";
 import PopupState, {
@@ -60,6 +60,31 @@ const Example = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
+  const [filterParams, setFilterParams] = useState({});
+  const [filterForm, setFilterForm] = useState(() => {
+    let res: ParamObject = {}
+    dataListCollumn2.forEach((item) => {
+      let str = 'fff'
+      if(item.type === 'text') {
+        res[item.key] = '';
+      } else if(item.type === 'number' || item.type === 'date') {
+        res[item.key + '-min'] = '';
+        res[item.key + '-max'] = '';
+      }
+    })
+
+    return res;
+  });
+
+  const handleFilterFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = event.target;
+    console.log(name, value)
+    // setFilterForm({ ...filterForm, [name]: value })
+    let res = filterForm
+    res[name] = value
+    console.log(res)
+    setFilterForm(res)
+  }
 
   // ----------- End Data and Fetching state -----------------
 
@@ -267,7 +292,7 @@ const Example = () => {
                   }}
                 >
                   <label htmlFor={item.key}>Tìm kiếm</label>
-                  <input id={item.key} type="text" />
+                  <input id={item.key} name={item.key} value={filterForm[item.key]} onChange={handleFilterFormChange} type="text" />
                   <Box
                     sx={{
                       marginTop: "24px",
@@ -343,11 +368,11 @@ const Example = () => {
                   <Grid container columns={12} columnSpacing={3} sx={{}}>
                     <Grid item xs={6}>
                       <label htmlFor={item.key + "-min"}>Min</label>
-                      <input id={item.key + "-min"} type="number" />
+                      <input id={item.key + "-min"} name={item.key + "-min"} value={filterForm[item.key + "-min"]} type="number" />
                     </Grid>
                     <Grid item xs={6}>
                       <label htmlFor={item.key + "-max"}>Max</label>
-                      <input id={item.key + "-max"} type="number" />
+                      <input id={item.key + "-max"} name={item.key + "-max"} value={filterForm[item.key + "-max"]} type="number" />
                     </Grid>
                   </Grid>
                   <Box
@@ -559,7 +584,7 @@ const Example = () => {
               "& th:nth-child(1)": {
                 borderWidth: "1px 1px 2px 1px",
                 padding: "4px 12px !important",
-                width: "48px",
+                width: "50px",
               },
             },
           }}

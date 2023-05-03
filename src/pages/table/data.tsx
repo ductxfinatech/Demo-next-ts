@@ -1,122 +1,18 @@
-export const data = [
-    {
-        userId: '1', //we'll use this as a unique row id
-        firstName: 'Dylan',
-        lastName: 'Murray',
-        age: 22,
-        address: '261 Erdman Ford',
-        city: 'East Daphne',
-        state: 'Kentucky',
-    },
-    {
-        userId: '2',
-        firstName: 'Raquel',
-        lastName: 'Kohler',
-        age: 18,
-        address: '769 Dominic Grove',
-        city: 'Columbus',
-        state: 'Ohio',
-    },
-    {
-        userId: '3', //we'll use this as a unique row id
-        firstName: 'Dylan',
-        lastName: 'Murray',
-        age: 22,
-        address: '261 Erdman Ford',
-        city: 'East Daphne',
-        state: 'Kentucky',
-    },
-    {
-        userId: '4',
-        firstName: 'Raquel',
-        lastName: 'Kohler',
-        age: 18,
-        address: '769 Dominic Grove',
-        city: 'Columbus',
-        state: 'Ohio',
-    },
-    {
-        userId: '5', //we'll use this as a unique row id
-        firstName: 'Dylan',
-        lastName: 'Murray',
-        age: 22,
-        address: '261 Erdman Ford',
-        city: 'East Daphne',
-        state: 'Kentucky',
-    },
-    {
-        userId: '6',
-        firstName: 'Raquel',
-        lastName: 'Kohler',
-        age: 18,
-        address: '769 Dominic Grove',
-        city: 'Columbus',
-        state: 'Ohio',
-    },
-    {
-        userId: '7', //we'll use this as a unique row id
-        firstName: 'Dylan',
-        lastName: 'Murray',
-        age: 22,
-        address: '261 Erdman Ford',
-        city: 'East Daphne',
-        state: 'Kentucky',
-    },
-    {
-        userId: '8',
-        firstName: 'Raquel',
-        lastName: 'Kohler',
-        age: 18,
-        address: '769 Dominic Grove',
-        city: 'Columbus',
-        state: 'Ohio',
-    },
-];
-
 
 interface IKeys { key: string; label: string }
 
-export const dataListCollumn = [
-    {
-        key: 'firstName',
-        label: 'First Name',
-        type: 'text'
-    },
-    {
-        key: 'lastName',
-        label: 'Last Name',
-        type: 'text'
-    },
-    {
-        key: 'age',
-        label: 'Age',
-        type: 'number'
-    },
-    {
-        key: 'address',
-        label: 'Address',
-        type: 'text'
-    },
-    {
-        key: 'city',
-        label: 'City',
-        type: 'text'
-    },
-    {
-        key: 'state',
-        label: 'State',
-        type: 'text'
-    },
-]
+export interface ParamObject {
+    [key: string]: any;
+}
 
 export const dataListCollumn2 = [
     {
         key: 'fundName',
         label: 'Quỹ',
         type: 'text',
-        minSize: 0,
+        size: 240,
+        minSize: 240,
         maxSize: 500,
-        size: 250,
         align: 'left',
         copy: false,
     },
@@ -124,9 +20,9 @@ export const dataListCollumn2 = [
         key: 'fundCode',
         label: 'Mã quỹ',
         type: 'text',
-        minSize: 0,
+        size: 110,
+        minSize: 110,
         maxSize: 500,
-        size: 100,
         align: 'left',
         copy: false,
     },
@@ -134,9 +30,9 @@ export const dataListCollumn2 = [
         key: 'memberAccount',
         label: 'STK thành viên lưu ký',
         type: 'text',
-        minSize: 0,
+        minSize: 200,
+        size: 200,
         maxSize: 500,
-        size: 150,
         align: 'left',
         copy: false,
     },
@@ -144,9 +40,9 @@ export const dataListCollumn2 = [
         key: 'fundType',
         label: 'Loại quỹ',
         type: 'text',
-        minSize: 0,
+        minSize: 120,
+        size: 120,
         maxSize: 500,
-        size: 80,
         align: 'left',
         copy: false,
     },
@@ -154,9 +50,9 @@ export const dataListCollumn2 = [
         key: 'company',
         label: 'Công ty quản lý quỹ',
         type: 'text',
-        minSize: 0,
+        minSize: 230,
+        size: 230,
         maxSize: 500,
-        size: 294,
         align: 'left',
         copy: false,
     },
@@ -164,9 +60,9 @@ export const dataListCollumn2 = [
         key: 'price',
         label: 'Mệnh giá ',
         type: 'number',
-        minSize: 0,
+        minSize: 120,
+        size: 120,
         maxSize: 500,
-        size: 100,
         align: 'right',
         copy: false,
     },
@@ -174,9 +70,9 @@ export const dataListCollumn2 = [
         key: 'volumn',
         label: 'KL phát hành',
         type: 'number',
-        minSize: 0,
+        minSize: 160,
+        size: 160,
         maxSize: 500,
-        size: 148,
         align: 'right',
         copy: false,
     },
