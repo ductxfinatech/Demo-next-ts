@@ -186,7 +186,9 @@ const Example = () => {
     // PushPinIcon: <Box>d</Box>,
     // VisibilityOffIcon: () => <Box>d</Box>,
     ViewColumnIcon: () => (
-      <DashboardCustomizeIcon sx={{ color: "#04A857", bgcolor: "#DDF6E8", borderRadius: '4px' }} />
+      <DashboardCustomizeIcon
+        sx={{ color: "#04A857", bgcolor: "#DDF6E8", borderRadius: "4px" }}
+      />
     ),
   };
   // Set Header Table
@@ -367,13 +369,17 @@ const Example = () => {
 
   // Get data
   const getData = () => {
-    console.log('Get data')
-  }
+    setIsLoading(true);
+    console.log("Get data");
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  };
 
   // Handle refresh
   const handleRefresh = () => {
-    getData()
-  }
+    getData();
+  };
 
   // -------------- End Function -----------------------
 
@@ -400,6 +406,7 @@ const Example = () => {
             globalFilter,
             sorting,
             showGlobalFilter: true,
+            isLoading,
           }}
           onSortingChange={setSorting}
           onPaginationChange={setPagination}
@@ -767,10 +774,16 @@ const Example = () => {
                           fontSize: "30px",
                         },
                       }}
-                      onClick={()=> {handleRefresh()}}
+                      onClick={() => {
+                        handleRefresh();
+                      }}
                     >
                       <RefreshIcon
-                        sx={{ color: "#04A857", bgcolor: "#DDF6E8", borderRadius: '4px' }}
+                        sx={{
+                          color: "#04A857",
+                          bgcolor: "#DDF6E8",
+                          borderRadius: "4px",
+                        }}
                       />
                     </IconButton>
                   </Tooltip>
