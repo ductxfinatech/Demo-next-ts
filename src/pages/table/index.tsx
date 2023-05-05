@@ -38,6 +38,7 @@ import {
   Add as AddIcon,
   GetApp as GetAppIcon,
   ArrowDropDown as ArrowDropDownIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 
 import MaterialReactTable, {
@@ -185,7 +186,7 @@ const Example = () => {
     // PushPinIcon: <Box>d</Box>,
     // VisibilityOffIcon: () => <Box>d</Box>,
     ViewColumnIcon: () => (
-      <DashboardCustomizeIcon sx={{ color: "#04A857", bgcolor: "#DDF6E8" }} />
+      <DashboardCustomizeIcon sx={{ color: "#04A857", bgcolor: "#DDF6E8", borderRadius: '4px' }} />
     ),
   };
   // Set Header Table
@@ -364,15 +365,20 @@ const Example = () => {
     csvExporter.generateCsv(rows.map((row) => row.original));
   };
 
+  // Get data
+  const getData = () => {
+    console.log('Get data')
+  }
+
+  // Handle refresh
+  const handleRefresh = () => {
+    getData()
+  }
+
   // -------------- End Function -----------------------
 
   useEffect(() => {
-    //do something when the row selection changes...
-    console.info({ rowSelection });
-    console.info({ sorting });
-    console.info({ pagination });
-    console.info({ globalFilter });
-    console.info({ filterParams });
+    getData();
   }, [rowSelection, sorting, pagination, globalFilter, filterParams]);
 
   return (
@@ -750,6 +756,24 @@ const Example = () => {
                     },
                   }}
                 >
+                  <Tooltip title="Refresh" arrow>
+                    <IconButton
+                      aria-label="refresh"
+                      sx={{
+                        height: "40px",
+                        padding: "5px",
+                        margin: "0 3px",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "30px",
+                        },
+                      }}
+                      onClick={()=> {handleRefresh()}}
+                    >
+                      <RefreshIcon
+                        sx={{ color: "#04A857", bgcolor: "#DDF6E8", borderRadius: '4px' }}
+                      />
+                    </IconButton>
+                  </Tooltip>
                   <Button
                     variant="contained"
                     startIcon={<GetAppIcon />}
