@@ -6,7 +6,7 @@ import PopupState, {
   bindPopover,
   bindMenu,
 } from "material-ui-popup-state";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, memo } from "react";
 import {
   Box,
   Grid,
@@ -31,6 +31,7 @@ import {
   Delete as DeleteIcon,
   AccessTime as AccessTimeIcon,
   Clear as ClearIcon,
+  Close as CloseIcon,
   Done as DoneIcon,
   DragIndicator as DragIndicatorIcon,
   DashboardCustomize as DashboardCustomizeIcon,
@@ -60,31 +61,95 @@ const Example = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
-  const [filterParams, setFilterParams] = useState({});
+  const [dataListCollumn, setDataListCollumn] = useState(dataListCollumn2);
+  const [filterParams, setFilterParams] = useState(() => {
+    let res: ParamObject = {};
+    return res;
+  });
   const [filterForm, setFilterForm] = useState(() => {
-    let res: ParamObject = {}
+    let res: ParamObject = {};
     dataListCollumn2.forEach((item) => {
-      let str = 'fff'
-      if(item.type === 'text') {
-        res[item.key] = '';
-      } else if(item.type === 'number' || item.type === 'date') {
-        res[item.key + '-min'] = '';
-        res[item.key + '-max'] = '';
+      if (item.type === "text" || item.type === "status") {
+        res[item.key] = "";
+      } else if (item.type === "number" || item.type === "date") {
+        res[item.key + "-min"] = "";
+        res[item.key + "-max"] = "";
       }
-    })
+    });
 
     return res;
   });
 
-  const handleFilterFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = event.target;
-    console.log(name, value)
-    // setFilterForm({ ...filterForm, [name]: value })
-    let res = filterForm
-    res[name] = value
-    console.log(res)
-    setFilterForm(res)
-  }
+  const handleFilterFormChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setFilterForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleClearFilter = (typeFilter: string, key: string) => {
+    if (typeFilter.includes("minmax")) {
+      setFilterParams({
+        ...filterParams,
+        [key + "-min"]: "",
+      });
+      setFilterParams({
+        ...filterParams,
+        [key + "-max"]: "",
+      });
+      setFilterForm({
+        ...filterForm,
+        [key + "-min"]: "",
+      });
+      setFilterForm({
+        ...filterForm,
+        [key + "-max"]: "",
+      });
+    } else {
+      setFilterParams({
+        ...filterParams,
+        [key]: "",
+      });
+      setFilterForm({
+        ...filterForm,
+        [key]: "",
+      });
+    }
+  };
+
+  const handleClearAllFilter = () => {
+    setFilterParams({});
+    setFilterForm(() => {
+      let res: ParamObject = {};
+      dataListCollumn2.forEach((item) => {
+        if (item.type === "text" || item.type === "status") {
+          res[item.key] = "";
+        } else if (item.type === "number" || item.type === "date") {
+          res[item.key + "-min"] = "";
+          res[item.key + "-max"] = "";
+        }
+      });
+
+      return res;
+    });
+  };
+
+  const handleOnSearchFilterColumn = (closeMenu: Function) => {
+    closeMenu();
+    setFilterParams(filterForm);
+  };
+
+  const isFilterParamsEmpty = () => {
+    for (var key in filterParams) {
+      if (filterParams[key].length > 0) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   // ----------- End Data and Fetching state -----------------
 
@@ -125,16 +190,18 @@ const Example = () => {
   };
   // Set Header Table
   const columns2 = useMemo(() => {
-    return dataListCollumn2.map((item: any) => {
+    return dataListCollumn.map((item: any) => {
       return {
         accessorKey: item.key,
-        header: item.label,
-        // type: item.type,
+        header: item.type,
+        type: item.type,
         minSize: item.minSize,
         maxSize: item.maxSize,
         size: item.size,
         enableClickToCopy: item.copy,
-        enableResizing: !(item.type === "setting" || item.type === "icon"),
+        enableResizing: !(item.type === "setting" || item.type === "status"),
+        enableSorting: !(item.type === "setting"),
+        enableColumnActions: item.type !== "setting",
         Header: (cell) => (
           <Box
             sx={{ padding: item.align !== "left" ? "0 0 0 6px" : "0 0px 0 0" }}
@@ -206,7 +273,7 @@ const Example = () => {
                 </>
               );
             }
-            case "icon": {
+            case "status": {
               switch (cell.getValue<any>()) {
                 case 1: {
                   return (
@@ -246,184 +313,12 @@ const Example = () => {
         muiTableHeadCellProps: {
           align: item.align,
           sx: {
-            // maxWidth: item.maxSize,
             padding: "8px 12px !important",
           },
         },
         muiTableBodyCellProps: {
           align: item.align,
-          sx: {
-            // maxWidth: item.maxSize,
-          },
-        },
-
-        enableColumnActions:
-          item.type === "text" ||
-          item.type === "number" ||
-          item.type === "date",
-
-        renderColumnActionsMenuItems: ({ closeMenu, column, table }) => {
-          switch (item.type) {
-            case "text": {
-              return [
-                <Box
-                  className="filter-column"
-                  sx={{
-                    padding: "16px",
-                    width: "332px",
-                    "& label": {
-                      display: "block",
-                      marginBottom: "4px",
-                      fontSize: "14px",
-                      lineHeight: "20px",
-                      fontWeight: "600",
-                    },
-
-                    "& input": {
-                      display: "block",
-                      fontSize: "14px",
-                      lineHeight: "20px",
-                      width: "100%",
-                      height: "32px",
-                      padding: "6px 8px",
-                      borderRadius: '4px',
-                      border: '1px solid #CFD6DD !important',
-                    },
-                  }}
-                >
-                  <label htmlFor={item.key}>Tìm kiếm</label>
-                  <input id={item.key} name={item.key} value={filterForm[item.key]} onChange={handleFilterFormChange} type="text" />
-                  <Box
-                    sx={{
-                      marginTop: "24px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Button
-                      sx={{
-                        bgcolor: "#E2E6EA",
-                        color: "#272E36",
-                        width: "138px",
-                        padding: "6px auto",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                        lineHeight: "20px",
-                        textTransform: "initial",
-                        "&:hover": { bgcolor: "#d1d6db" },
-                      }}
-                      variant="contained"
-                      color="success"
-                    >
-                      Đặt lại
-                    </Button>
-                    <Button
-                      sx={{
-                        bgcolor: "#04A857",
-                        color: "#DDF6E8",
-                        width: "138px",
-                        padding: "6px auto",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                        lineHeight: "20px",
-                        textTransform: "initial",
-                        "&:hover": { bgcolor: "#028343" },
-                      }}
-                      variant="contained"
-                      color="success"
-                    >
-                      Tìm kiếm
-                    </Button>
-                  </Box>
-                </Box>,
-              ];
-            }
-            case "number": {
-              return [
-                <Box 
-                  className="filter-column"
-                  sx={{
-                    padding: "16px",
-                    width: "332px",
-                    "& label": {
-                      display: "block",
-                      marginBottom: "4px",
-                      fontSize: "14px",
-                      lineHeight: "20px",
-                      fontWeight: "600",
-                    },
-
-                    "& input": {
-                      display: "block",
-                      fontSize: "14px",
-                      lineHeight: "20px",
-                      height: "32px",
-                      width: "100%",
-                      padding: "6px 8px",
-                      borderRadius: '4px',
-                      border: '1px solid #CFD6DD !important',
-                    },
-                  }}
-                >
-                  <Grid container columns={12} columnSpacing={3} sx={{}}>
-                    <Grid item xs={6}>
-                      <label htmlFor={item.key + "-min"}>Min</label>
-                      <input id={item.key + "-min"} name={item.key + "-min"} value={filterForm[item.key + "-min"]} type="number" />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <label htmlFor={item.key + "-max"}>Max</label>
-                      <input id={item.key + "-max"} name={item.key + "-max"} value={filterForm[item.key + "-max"]} type="number" />
-                    </Grid>
-                  </Grid>
-                  <Box
-                    sx={{
-                      marginTop: "24px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Button
-                      sx={{
-                        bgcolor: "#E2E6EA",
-                        color: "#272E36",
-                        width: "138px",
-                        padding: "6px auto",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                        lineHeight: "20px",
-                        textTransform: "initial",
-                        "&:hover": { bgcolor: "#d1d6db" },
-                      }}
-                      variant="contained"
-                      color="success"
-                    >
-                      Đặt lại
-                    </Button>
-                    <Button
-                      sx={{
-                        bgcolor: "#04A857",
-                        color: "#DDF6E8",
-                        width: "138px",
-                        padding: "6px auto",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                        lineHeight: "20px",
-                        textTransform: "initial",
-                        "&:hover": { bgcolor: "#028343" },
-                      }}
-                      variant="contained"
-                      color="success"
-                    >
-                      Tìm kiếm
-                    </Button>
-                  </Box>
-                </Box>,
-              ];
-            }
-            default: {
-              return [];
-            }
-          }
+          sx: {},
         },
       };
     }) as MRT_ColumnDef<(typeof data2)[0]>[];
@@ -477,7 +372,8 @@ const Example = () => {
     console.info({ sorting });
     console.info({ pagination });
     console.info({ globalFilter });
-  }, [rowSelection, sorting, pagination, globalFilter]);
+    console.info({ filterParams });
+  }, [rowSelection, sorting, pagination, globalFilter, filterParams]);
 
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px 20px 20px 264px" }}>
@@ -581,7 +477,7 @@ const Example = () => {
                   padding: "0",
                 },
               },
-              "& th:nth-child(1)": {
+              "& th:nth-of-type(1)": {
                 borderWidth: "1px 1px 2px 1px",
                 padding: "4px 12px !important",
                 width: "50px",
@@ -603,7 +499,7 @@ const Example = () => {
                 },
               },
 
-              "& td:nth-child(1)": {
+              "& td:nth-of-type(1)": {
                 borderWidth: "0 1px 1px 1px",
               },
             },
@@ -621,93 +517,299 @@ const Example = () => {
           //     }
           // }}
 
-          renderTopToolbar={({ table }) => (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "12px 0",
-              }}
-            >
-              <Box
-                sx={{
-                  "& .MuiInputBase-root.MuiOutlinedInput-root": {
-                    width: "220px",
-                    padding: "0 0 0 4px",
-                  },
-                }}
-              >
-                <MRT_GlobalFilterTextField table={table} />
-              </Box>
+          renderTopToolbar={({ table }) => {
+            return (
               <Box
                 sx={{
                   display: "flex",
-                  alignItems: "center",
-                  "& button": {
-                    fontSize: "14px",
-                    lineHeight: "20px",
-                  },
+                  justifyContent: "space-between",
+                  padding: "12px 0",
                 }}
               >
-                <Button
-                  variant="contained"
-                  startIcon={<GetAppIcon />}
-                  disabled={
-                    !table.getIsSomeRowsSelected() &&
-                    !table.getIsAllRowsSelected()
-                  }
-                  onClick={() => {
-                    handleExportRows(table.getSelectedRowModel().rows);
-                  }}
+                <Box
                   sx={{
-                    bgcolor: "#DDF6E8",
-                    color: "#04A857",
-                    padding: "6px 12px",
-                    textTransform: "unset",
-                    height: "32px",
-                    "&:hover": { bgcolor: "#a6e6c2" },
-                    "& .MuiSvgIcon-root": {
-                      fontSize: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                    "& .MuiCollapse-root.MuiCollapse-horizontal": {
+                      minWidth: "220px !important",
+                    },
+                    "& .MuiFormControl-root.MuiTextField-root": {
+                      minWidth: "unset",
+                    },
+                    "& .MuiInputBase-root.MuiOutlinedInput-root": {
+                      width: "220px",
+                      padding: "0 0 0 4px",
                     },
                   }}
                 >
-                  Xuất Excel
-                </Button>
-
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  sx={{
-                    bgcolor: "#04A857",
-                    color: "#DDF6E8",
-                    marginLeft: "8px",
-                    padding: "6px 12px",
-                    textTransform: "unset",
-                    height: "32px",
-                    "&:hover": { bgcolor: "#028343" },
-                    "& .MuiSvgIcon-root": {
-                      fontSize: "20px",
-                    },
-                  }}
-                >
-                  Thêm mới
-                </Button>
-                <Box>
-                  <MRT_ShowHideColumnsButton
-                    table={table}
+                  <MRT_GlobalFilterTextField table={table} />
+                  <Box
                     sx={{
-                      height: "40px",
-                      padding: "5px",
-                      margin: "0 12px",
+                      paddingLeft: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {dataListCollumn.map((item, idx) => {
+                      if (item.typeFilter.includes("minmax")) {
+                        return (
+                          <Box key={item.key} sx={{ display: "flex" }}>
+                            {filterParams[item.key + "-min"]?.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  fontSize: "14px",
+                                  lineHeight: "20px",
+                                  marginRight: "16px",
+                                }}
+                              >
+                                <Box
+                                  sx={{ color: "#828D9A", marginRight: "4px" }}
+                                >
+                                  {item.label + " - min"}
+                                </Box>
+                                <Box sx={{ color: "#272E36" }}>
+                                  "{filterParams[item.key + "-min"]}"
+                                </Box>
+                                <IconButton
+                                  aria-label="delete"
+                                  size="small"
+                                  onClick={() => {
+                                    handleClearFilter(
+                                      "text",
+                                      item.key + "-min"
+                                    );
+                                  }}
+                                >
+                                  <CloseIcon
+                                    sx={{ color: "#E6544F" }}
+                                    fontSize="inherit"
+                                  />
+                                </IconButton>
+                              </Box>
+                            ) : (
+                              <></>
+                            )}
+
+                            {filterParams[item.key + "-max"]?.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  fontSize: "14px",
+                                  lineHeight: "20px",
+                                  marginRight: "16px",
+                                }}
+                              >
+                                <Box
+                                  sx={{ color: "#828D9A", marginRight: "4px" }}
+                                >
+                                  {item.label + " - max"}
+                                </Box>
+                                <Box sx={{ color: "#272E36" }}>
+                                  "{filterParams[item.key + "-max"]}"
+                                </Box>
+                                <IconButton
+                                  aria-label="delete"
+                                  size="small"
+                                  onClick={() => {
+                                    handleClearFilter(
+                                      "text",
+                                      item.key + "-max"
+                                    );
+                                  }}
+                                >
+                                  <CloseIcon
+                                    sx={{ color: "#E6544F" }}
+                                    fontSize="inherit"
+                                  />
+                                </IconButton>
+                              </Box>
+                            ) : (
+                              <></>
+                            )}
+                          </Box>
+                        );
+                      } else if (item.typeFilter === "select") {
+                        return (
+                          <Box key={item.key}>
+                            {filterParams[item.key]?.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  fontSize: "14px",
+                                  lineHeight: "20px",
+                                  marginRight: "16px",
+                                }}
+                              >
+                                <Box
+                                  sx={{ color: "#828D9A", marginRight: "4px" }}
+                                >
+                                  {item.label}
+                                </Box>
+                                <Box sx={{ color: "#272E36" }}>
+                                  "{filterParams[item.key]}"
+                                </Box>
+                                <IconButton
+                                  aria-label="delete"
+                                  size="small"
+                                  onClick={() => {
+                                    handleClearFilter(
+                                      item.typeFilter,
+                                      item.key
+                                    );
+                                  }}
+                                >
+                                  <CloseIcon
+                                    sx={{ color: "#E6544F" }}
+                                    fontSize="inherit"
+                                  />
+                                </IconButton>
+                              </Box>
+                            ) : (
+                              <></>
+                            )}
+                          </Box>
+                        );
+                      } else {
+                        return (
+                          <Box key={item.key}>
+                            {filterParams[item.key]?.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  fontSize: "14px",
+                                  lineHeight: "20px",
+                                  marginRight: "16px",
+                                }}
+                              >
+                                <Box
+                                  sx={{ color: "#828D9A", marginRight: "4px" }}
+                                >
+                                  {item.label}
+                                </Box>
+                                <Box sx={{ color: "#272E36" }}>
+                                  "{filterParams[item.key]}"
+                                </Box>
+                                <IconButton
+                                  aria-label="delete"
+                                  size="small"
+                                  onClick={() => {
+                                    handleClearFilter(
+                                      item.typeFilter,
+                                      item.key
+                                    );
+                                  }}
+                                >
+                                  <CloseIcon
+                                    sx={{ color: "#E6544F" }}
+                                    fontSize="inherit"
+                                  />
+                                </IconButton>
+                              </Box>
+                            ) : (
+                              <></>
+                            )}
+                          </Box>
+                        );
+                      }
+                    })}
+                    {!isFilterParamsEmpty() ? (
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{
+                          textDecoration: "underline !important",
+                          textTransform: "initial",
+                          color: "#272E36",
+                        }}
+                        onClick={() => {
+                          handleClearAllFilter();
+                        }}
+                      >
+                        Xóa bộ lọc
+                      </Button>
+                    ) : (
+                      <></>
+                    )}
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "end",
+                    minWidth: "340px",
+                    "& button": {
+                      fontSize: "14px",
+                      lineHeight: "20px",
+                    },
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<GetAppIcon />}
+                    disabled={
+                      !table.getIsSomeRowsSelected() &&
+                      !table.getIsAllRowsSelected()
+                    }
+                    onClick={() => {
+                      handleExportRows(table.getSelectedRowModel().rows);
+                    }}
+                    sx={{
+                      bgcolor: "#DDF6E8",
+                      color: "#04A857",
+                      padding: "6px 12px",
+                      textTransform: "unset",
+                      height: "32px",
+                      "&:hover": { bgcolor: "#a6e6c2" },
                       "& .MuiSvgIcon-root": {
-                        fontSize: "30px",
+                        fontSize: "20px",
                       },
                     }}
-                  />
+                  >
+                    Xuất Excel
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{
+                      bgcolor: "#04A857",
+                      color: "#DDF6E8",
+                      marginLeft: "8px",
+                      padding: "6px 12px",
+                      textTransform: "unset",
+                      height: "32px",
+                      "&:hover": { bgcolor: "#028343" },
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "20px",
+                      },
+                    }}
+                  >
+                    Thêm mới
+                  </Button>
+                  <Box>
+                    <MRT_ShowHideColumnsButton
+                      table={table}
+                      sx={{
+                        height: "40px",
+                        padding: "5px",
+                        margin: "0 3px",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "30px",
+                        },
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          )}
+            );
+          }}
           renderBottomToolbar={({ table }) => (
             <Box
               sx={{
@@ -731,6 +833,413 @@ const Example = () => {
               </Box>
             </Box>
           )}
+          renderColumnActionsMenuItems={({ closeMenu, column, table }) => {
+            let columnData = dataListCollumn.filter(
+              (item) => item.key === column.id
+            )[0];
+            switch (columnData.typeFilter) {
+              case "text": {
+                return [
+                  <Box
+                    key={column.id}
+                    className="filter-column"
+                    sx={{
+                      padding: "16px",
+                      width: "332px",
+                      "& label": {
+                        display: "block",
+                        marginBottom: "4px",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        fontWeight: "600",
+                      },
+
+                      "& input": {
+                        display: "block",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        width: "100%",
+                        height: "32px",
+                        padding: "6px 8px",
+                        borderRadius: "4px",
+                        border: "1px solid #CFD6DD !important",
+                      },
+                    }}
+                  >
+                    <label htmlFor={column.id}>Tìm kiếm</label>
+                    <input
+                      id={column.id}
+                      name={column.id}
+                      value={filterForm[column.id]}
+                      onChange={handleFilterFormChange}
+                      type="text"
+                    />
+                    <Box
+                      sx={{
+                        marginTop: "24px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          bgcolor: "#E2E6EA",
+                          color: "#272E36",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#d1d6db" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleClearFilter(
+                            columnData.typeFilter,
+                            columnData.key
+                          );
+                        }}
+                      >
+                        Đặt lại
+                      </Button>
+                      <Button
+                        sx={{
+                          bgcolor: "#04A857",
+                          color: "#DDF6E8",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#028343" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleOnSearchFilterColumn(closeMenu);
+                        }}
+                      >
+                        Tìm kiếm
+                      </Button>
+                    </Box>
+                  </Box>,
+                ];
+              }
+              case "minmaxNumber": {
+                return [
+                  <Box
+                    key={column.id}
+                    className="filter-column"
+                    sx={{
+                      padding: "16px",
+                      width: "332px",
+                      "& label": {
+                        display: "block",
+                        marginBottom: "4px",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        fontWeight: "600",
+                      },
+
+                      "& input": {
+                        display: "block",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        height: "32px",
+                        width: "100%",
+                        padding: "6px 8px",
+                        borderRadius: "4px",
+                        border: "1px solid #CFD6DD !important",
+                      },
+                    }}
+                  >
+                    <Grid container columns={12} columnSpacing={3} sx={{}}>
+                      <Grid item xs={6}>
+                        <label htmlFor={column.id + "-min"}>Min</label>
+                        <input
+                          id={column.id + "-min"}
+                          name={column.id + "-min"}
+                          value={filterForm[column.id + "-min"]}
+                          onChange={handleFilterFormChange}
+                          type="number"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <label htmlFor={column.id + "-max"}>Max</label>
+                        <input
+                          id={column.id + "-max"}
+                          name={column.id + "-max"}
+                          value={filterForm[column.id + "-max"]}
+                          onChange={handleFilterFormChange}
+                          type="number"
+                        />
+                      </Grid>
+                    </Grid>
+                    <Box
+                      sx={{
+                        marginTop: "24px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          bgcolor: "#E2E6EA",
+                          color: "#272E36",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#d1d6db" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleClearFilter(
+                            columnData.typeFilter,
+                            columnData.key
+                          );
+                        }}
+                      >
+                        Đặt lại
+                      </Button>
+                      <Button
+                        sx={{
+                          bgcolor: "#04A857",
+                          color: "#DDF6E8",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#028343" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleOnSearchFilterColumn(closeMenu);
+                        }}
+                      >
+                        Tìm kiếm
+                      </Button>
+                    </Box>
+                  </Box>,
+                ];
+              }
+              case "minmaxDate": {
+                return [
+                  <Box
+                    key={column.id}
+                    className="filter-column"
+                    sx={{
+                      padding: "16px",
+                      width: "332px",
+                      "& label": {
+                        display: "block",
+                        marginBottom: "4px",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        fontWeight: "600",
+                      },
+
+                      "& input": {
+                        display: "block",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        height: "32px",
+                        width: "100%",
+                        padding: "6px 8px",
+                        borderRadius: "4px",
+                        border: "1px solid #CFD6DD !important",
+                      },
+                    }}
+                  >
+                    <Grid container columns={12} rowSpacing={2.5} sx={{}}>
+                      <Grid item xs={12}>
+                        <label htmlFor={column.id + "-min"}>Min</label>
+                        <input
+                          id={column.id + "-min"}
+                          name={column.id + "-min"}
+                          value={filterForm[column.id + "-min"]}
+                          onChange={handleFilterFormChange}
+                          type="date"
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <label htmlFor={column.id + "-max"}>Max</label>
+                        <input
+                          id={column.id + "-max"}
+                          name={column.id + "-max"}
+                          value={filterForm[column.id + "-max"]}
+                          onChange={handleFilterFormChange}
+                          type="date"
+                        />
+                      </Grid>
+                    </Grid>
+                    <Box
+                      sx={{
+                        marginTop: "24px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          bgcolor: "#E2E6EA",
+                          color: "#272E36",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#d1d6db" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleClearFilter(
+                            columnData.typeFilter,
+                            columnData.key
+                          );
+                        }}
+                      >
+                        Đặt lại
+                      </Button>
+                      <Button
+                        sx={{
+                          bgcolor: "#04A857",
+                          color: "#DDF6E8",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#028343" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleOnSearchFilterColumn(closeMenu);
+                        }}
+                      >
+                        Tìm kiếm
+                      </Button>
+                    </Box>
+                  </Box>,
+                ];
+              }
+              case "select": {
+                return [
+                  <Box
+                    key={column.id}
+                    className="filter-column"
+                    sx={{
+                      padding: "16px",
+                      width: "332px",
+                      "& label": {
+                        display: "block",
+                        marginBottom: "4px",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        fontWeight: "600",
+                      },
+
+                      "& select": {
+                        display: "block",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        height: "32px",
+                        width: "100%",
+                        padding: "6px 8px",
+                        borderRadius: "4px",
+                        border: "1px solid #CFD6DD !important",
+                      },
+                    }}
+                  >
+                    <Grid container columns={12} sx={{}}>
+                      <Grid item xs={12}>
+                        <label htmlFor={column.id + "-min"}>Bộ lọc</label>
+                        <select
+                          name={column.id}
+                          id={column.id}
+                          value={filterForm[column.id]}
+                          onChange={handleFilterFormChange}
+                        >
+                          {columnData.listSelectOption?.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </Grid>
+                    </Grid>
+                    <Box
+                      sx={{
+                        marginTop: "24px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          bgcolor: "#E2E6EA",
+                          color: "#272E36",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#d1d6db" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleClearFilter(
+                            columnData.typeFilter,
+                            columnData.key
+                          );
+                        }}
+                      >
+                        Đặt lại
+                      </Button>
+                      <Button
+                        sx={{
+                          bgcolor: "#04A857",
+                          color: "#DDF6E8",
+                          width: "138px",
+                          padding: "6px auto",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          textTransform: "initial",
+                          "&:hover": { bgcolor: "#028343" },
+                        }}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          handleOnSearchFilterColumn(closeMenu);
+                        }}
+                      >
+                        Tìm kiếm
+                      </Button>
+                    </Box>
+                  </Box>,
+                ];
+              }
+              default: {
+                return [];
+              }
+            }
+          }}
         />
       </Box>
       <style lang="scss">
