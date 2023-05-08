@@ -6,7 +6,7 @@ import PopupState, {
   bindPopover,
   bindMenu,
 } from "material-ui-popup-state";
-import React, { useEffect, useMemo, useState, memo } from "react";
+import React, { useEffect, useMemo, useRef, useState, memo } from "react";
 import {
   Box,
   Grid,
@@ -55,9 +55,12 @@ import MaterialReactTable, {
   MRT_SortingState,
 } from "material-react-table";
 
+import TableFooterBase from "./components/TableFooterBase";
+import TableHeaderBase from "./components/TableHeaderBase";
+
 const Example = () => {
   // -------------- Data and Fetching state -----------------
-  const [listItem, setListItem] = useState<Item2[]>(data2);
+  const [listItem, setListItem] = useState<any[]>(data2);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
@@ -81,14 +84,27 @@ const Example = () => {
     return res;
   });
 
+  const inputRefs = useRef<ParamObject>({});
+
+  const [listCollumnObject, setListCollumnObject] = useState(() => {
+    let res: ParamObject = {};
+    dataListCollumn2.forEach((item: any) => {
+      res[item.key] = item;
+    });
+
+    return res;
+  });
+
   const handleFilterFormChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFilterForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    // setFilterForm((prev) => ({
+    //   ...prev,
+    //   [name]: value,
+    // }));
+    inputRefs.current[name] = value;
+    console.log(inputRefs.current)
   };
 
   const handleClearFilter = (typeFilter: string, key: string) => {
@@ -96,17 +112,11 @@ const Example = () => {
       setFilterParams({
         ...filterParams,
         [key + "-min"]: "",
-      });
-      setFilterParams({
-        ...filterParams,
         [key + "-max"]: "",
       });
       setFilterForm({
         ...filterForm,
         [key + "-min"]: "",
-      });
-      setFilterForm({
-        ...filterForm,
         [key + "-max"]: "",
       });
     } else {
@@ -139,17 +149,11 @@ const Example = () => {
   };
 
   const handleOnSearchFilterColumn = (closeMenu: Function) => {
-    closeMenu();
-    setFilterParams(filterForm);
-  };
+    // const inputValues = Object.values(inputRefs.current).map((inputRef) => inputRef.value);
 
-  const isFilterParamsEmpty = () => {
-    for (var key in filterParams) {
-      if (filterParams[key].length > 0) {
-        return false;
-      }
-    }
-    return true;
+    console.log("inputValues", inputRefs.current);
+    closeMenu();
+    setFilterParams(inputRefs.current);
   };
 
   // ----------- End Data and Fetching state -----------------
@@ -217,7 +221,10 @@ const Example = () => {
             case "setting": {
               return (
                 <>
-                  <PopupState variant="popover" popupId="demo-popup-popover">
+                  <PopupState
+                    variant="popover"
+                    popupId={"demo-popup-popover-" + cell.row.original.id}
+                  >
                     {(popupState) => (
                       <div>
                         <IconButton
@@ -324,7 +331,7 @@ const Example = () => {
           sx: {},
         },
       };
-    }) as MRT_ColumnDef<(typeof data2)[0]>[];
+    }) as MRT_ColumnDef<any>[];
   }, []);
 
   // ---------------- End Table state ------------------------
@@ -363,7 +370,7 @@ const Example = () => {
     closePopup();
   };
   // Export CSV
-  const handleExportRows = (rows: MRT_Row<Item2>[]) => {
+  const handleExportRows = (rows: MRT_Row<any>[]) => {
     csvExporter.generateCsv(rows.map((row) => row.original));
   };
 
@@ -385,7 +392,7 @@ const Example = () => {
 
   useEffect(() => {
     getData();
-  }, [rowSelection, sorting, pagination, globalFilter, filterParams]);
+  }, [sorting, pagination, globalFilter, filterParams]);
 
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px 20px 20px 264px" }}>
@@ -524,357 +531,20 @@ const Example = () => {
               lineHeight: "20px",
             },
           }}
-          // muiSelectCheckboxProps={{
-          //     sx: {
-
-          //     }
-          // }}
-
-          renderTopToolbar={({ table }) => {
-            return (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "12px 0",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& .MuiCollapse-root.MuiCollapse-horizontal": {
-                      minWidth: "220px !important",
-                    },
-                    "& .MuiFormControl-root.MuiTextField-root": {
-                      minWidth: "unset",
-                    },
-                    "& .MuiInputBase-root.MuiOutlinedInput-root": {
-                      width: "220px",
-                      padding: "0 0 0 4px",
-                    },
-                  }}
-                >
-                  <MRT_GlobalFilterTextField table={table} />
-                  <Box
-                    sx={{
-                      paddingLeft: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {dataListCollumn.map((item, idx) => {
-                      if (item.typeFilter.includes("minmax")) {
-                        return (
-                          <Box key={item.key} sx={{ display: "flex" }}>
-                            {filterParams[item.key + "-min"]?.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  fontSize: "14px",
-                                  lineHeight: "20px",
-                                  marginRight: "16px",
-                                }}
-                              >
-                                <Box
-                                  sx={{ color: "#828D9A", marginRight: "4px" }}
-                                >
-                                  {item.label + " - min"}
-                                </Box>
-                                <Box sx={{ color: "#272E36" }}>
-                                  "{filterParams[item.key + "-min"]}"
-                                </Box>
-                                <IconButton
-                                  aria-label="delete"
-                                  size="small"
-                                  onClick={() => {
-                                    handleClearFilter(
-                                      "text",
-                                      item.key + "-min"
-                                    );
-                                  }}
-                                >
-                                  <CloseIcon
-                                    sx={{ color: "#E6544F" }}
-                                    fontSize="inherit"
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <></>
-                            )}
-
-                            {filterParams[item.key + "-max"]?.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  fontSize: "14px",
-                                  lineHeight: "20px",
-                                  marginRight: "16px",
-                                }}
-                              >
-                                <Box
-                                  sx={{ color: "#828D9A", marginRight: "4px" }}
-                                >
-                                  {item.label + " - max"}
-                                </Box>
-                                <Box sx={{ color: "#272E36" }}>
-                                  "{filterParams[item.key + "-max"]}"
-                                </Box>
-                                <IconButton
-                                  aria-label="delete"
-                                  size="small"
-                                  onClick={() => {
-                                    handleClearFilter(
-                                      "text",
-                                      item.key + "-max"
-                                    );
-                                  }}
-                                >
-                                  <CloseIcon
-                                    sx={{ color: "#E6544F" }}
-                                    fontSize="inherit"
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <></>
-                            )}
-                          </Box>
-                        );
-                      } else if (item.typeFilter === "select") {
-                        return (
-                          <Box key={item.key}>
-                            {filterParams[item.key]?.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  fontSize: "14px",
-                                  lineHeight: "20px",
-                                  marginRight: "16px",
-                                }}
-                              >
-                                <Box
-                                  sx={{ color: "#828D9A", marginRight: "4px" }}
-                                >
-                                  {item.label}
-                                </Box>
-                                <Box sx={{ color: "#272E36" }}>
-                                  "{filterParams[item.key]}"
-                                </Box>
-                                <IconButton
-                                  aria-label="delete"
-                                  size="small"
-                                  onClick={() => {
-                                    handleClearFilter(
-                                      item.typeFilter,
-                                      item.key
-                                    );
-                                  }}
-                                >
-                                  <CloseIcon
-                                    sx={{ color: "#E6544F" }}
-                                    fontSize="inherit"
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <></>
-                            )}
-                          </Box>
-                        );
-                      } else {
-                        return (
-                          <Box key={item.key}>
-                            {filterParams[item.key]?.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  fontSize: "14px",
-                                  lineHeight: "20px",
-                                  marginRight: "16px",
-                                }}
-                              >
-                                <Box
-                                  sx={{ color: "#828D9A", marginRight: "4px" }}
-                                >
-                                  {item.label}
-                                </Box>
-                                <Box sx={{ color: "#272E36" }}>
-                                  "{filterParams[item.key]}"
-                                </Box>
-                                <IconButton
-                                  aria-label="delete"
-                                  size="small"
-                                  onClick={() => {
-                                    handleClearFilter(
-                                      item.typeFilter,
-                                      item.key
-                                    );
-                                  }}
-                                >
-                                  <CloseIcon
-                                    sx={{ color: "#E6544F" }}
-                                    fontSize="inherit"
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <></>
-                            )}
-                          </Box>
-                        );
-                      }
-                    })}
-                    {!isFilterParamsEmpty() ? (
-                      <Button
-                        variant="text"
-                        size="small"
-                        sx={{
-                          textDecoration: "underline !important",
-                          textTransform: "initial",
-                          color: "#272E36",
-                        }}
-                        onClick={() => {
-                          handleClearAllFilter();
-                        }}
-                      >
-                        Xóa bộ lọc
-                      </Button>
-                    ) : (
-                      <></>
-                    )}
-                  </Box>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "end",
-                    minWidth: "340px",
-                    "& button": {
-                      fontSize: "14px",
-                      lineHeight: "20px",
-                    },
-                  }}
-                >
-                  <Tooltip title="Refresh" arrow>
-                    <IconButton
-                      aria-label="refresh"
-                      sx={{
-                        height: "40px",
-                        padding: "5px",
-                        margin: "0 3px",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: "30px",
-                        },
-                      }}
-                      onClick={() => {
-                        handleRefresh();
-                      }}
-                    >
-                      <RefreshIcon
-                        sx={{
-                          color: "#04A857",
-                          bgcolor: "#DDF6E8",
-                          borderRadius: "4px",
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Button
-                    variant="contained"
-                    startIcon={<GetAppIcon />}
-                    disabled={
-                      !table.getIsSomeRowsSelected() &&
-                      !table.getIsAllRowsSelected()
-                    }
-                    onClick={() => {
-                      handleExportRows(table.getSelectedRowModel().rows);
-                    }}
-                    sx={{
-                      bgcolor: "#DDF6E8",
-                      color: "#04A857",
-                      padding: "6px 12px",
-                      textTransform: "unset",
-                      height: "32px",
-                      "&:hover": { bgcolor: "#a6e6c2" },
-                      "& .MuiSvgIcon-root": {
-                        fontSize: "20px",
-                      },
-                    }}
-                  >
-                    Xuất Excel
-                  </Button>
-
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    sx={{
-                      bgcolor: "#04A857",
-                      color: "#DDF6E8",
-                      marginLeft: "8px",
-                      padding: "6px 12px",
-                      textTransform: "unset",
-                      height: "32px",
-                      "&:hover": { bgcolor: "#028343" },
-                      "& .MuiSvgIcon-root": {
-                        fontSize: "20px",
-                      },
-                    }}
-                  >
-                    Thêm mới
-                  </Button>
-                  <Box>
-                    <MRT_ShowHideColumnsButton
-                      table={table}
-                      sx={{
-                        height: "40px",
-                        padding: "5px",
-                        margin: "0 3px",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: "30px",
-                        },
-                      }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            );
-          }}
-          renderBottomToolbar={({ table }) => (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: "1px solid #CFD6DD",
-              }}
-            >
-              <Box
-                sx={{
-                  "& .MuiAlert-message": {
-                    bgcolor: "#fff !important",
-                  },
-                }}
-              >
-                <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
-              </Box>
-              <Box sx={{ bgcolor: "#fff !important" }}>
-                <MRT_TablePagination table={table} />
-              </Box>
-            </Box>
+          muiSelectCheckboxProps={{ sx: {} }}
+          renderTopToolbar={({ table }) => (
+            <TableHeaderBase
+              table={table}
+              dataListCollumn={dataListCollumn}
+              filterParams={filterParams}
+              onClearFilter={handleClearFilter}
+              onClearAllFilter={handleClearAllFilter}
+              onRefresh={handleRefresh}
+            ></TableHeaderBase>
           )}
-          renderColumnActionsMenuItems={({ closeMenu, column, table }) => {
-            let columnData = dataListCollumn.filter(
-              (item) => item.key === column.id
-            )[0];
-            switch (columnData.typeFilter) {
+          renderBottomToolbar={({ table }) => <TableFooterBase table={table} />}
+          renderColumnActionsMenuItems={({ closeMenu, column }) => {
+            switch (listCollumnObject[column.id].typeFilter) {
               case "text": {
                 return [
                   <Box
@@ -907,7 +577,8 @@ const Example = () => {
                     <input
                       id={column.id}
                       name={column.id}
-                      value={filterForm[column.id]}
+                      // value={filterForm[column.id]}
+                      value={inputRefs.current[column.id]}
                       onChange={handleFilterFormChange}
                       type="text"
                     />
@@ -934,8 +605,8 @@ const Example = () => {
                         color="success"
                         onClick={() => {
                           handleClearFilter(
-                            columnData.typeFilter,
-                            columnData.key
+                            listCollumnObject[column.id].typeFilter,
+                            listCollumnObject[column.id].key
                           );
                         }}
                       >
@@ -999,7 +670,8 @@ const Example = () => {
                         <input
                           id={column.id + "-min"}
                           name={column.id + "-min"}
-                          value={filterForm[column.id + "-min"]}
+                          // value={filterForm[column.id + "-min"]}
+                          value={inputRefs.current[column.id + "-min"]}
                           onChange={handleFilterFormChange}
                           type="number"
                         />
@@ -1009,7 +681,8 @@ const Example = () => {
                         <input
                           id={column.id + "-max"}
                           name={column.id + "-max"}
-                          value={filterForm[column.id + "-max"]}
+                          // value={filterForm[column.id + "-max"]}
+                          value={inputRefs.current[column.id + "-max"]}
                           onChange={handleFilterFormChange}
                           type="number"
                         />
@@ -1038,8 +711,8 @@ const Example = () => {
                         color="success"
                         onClick={() => {
                           handleClearFilter(
-                            columnData.typeFilter,
-                            columnData.key
+                            listCollumnObject[column.id].typeFilter,
+                            listCollumnObject[column.id].key
                           );
                         }}
                       >
@@ -1103,7 +776,8 @@ const Example = () => {
                         <input
                           id={column.id + "-min"}
                           name={column.id + "-min"}
-                          value={filterForm[column.id + "-min"]}
+                          // value={filterForm[column.id + "-min"]}
+                          value={inputRefs.current[column.id + "-min"]}
                           onChange={handleFilterFormChange}
                           type="date"
                         />
@@ -1113,7 +787,8 @@ const Example = () => {
                         <input
                           id={column.id + "-max"}
                           name={column.id + "-max"}
-                          value={filterForm[column.id + "-max"]}
+                          // value={filterForm[column.id + "-max"]}
+                          value={inputRefs.current[column.id + "-max"]}
                           onChange={handleFilterFormChange}
                           type="date"
                         />
@@ -1142,8 +817,8 @@ const Example = () => {
                         color="success"
                         onClick={() => {
                           handleClearFilter(
-                            columnData.typeFilter,
-                            columnData.key
+                            listCollumnObject[column.id].typeFilter,
+                            listCollumnObject[column.id].key
                           );
                         }}
                       >
@@ -1203,18 +878,21 @@ const Example = () => {
                   >
                     <Grid container columns={12} sx={{}}>
                       <Grid item xs={12}>
-                        <label htmlFor={column.id + "-min"}>Bộ lọc</label>
+                        <label htmlFor={column.id}>Bộ lọc</label>
                         <select
                           name={column.id}
                           id={column.id}
-                          value={filterForm[column.id]}
+                          // value={filterForm[column.id]}
+                          value={inputRefs.current[column.id]}
                           onChange={handleFilterFormChange}
                         >
-                          {columnData.listSelectOption?.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
+                          {listCollumnObject[column.id].listSelectOption?.map(
+                            (option: any) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            )
+                          )}
                         </select>
                       </Grid>
                     </Grid>
@@ -1241,8 +919,8 @@ const Example = () => {
                         color="success"
                         onClick={() => {
                           handleClearFilter(
-                            columnData.typeFilter,
-                            columnData.key
+                            listCollumnObject[column.id].typeFilter,
+                            listCollumnObject[column.id].key
                           );
                         }}
                       >

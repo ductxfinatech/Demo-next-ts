@@ -22,3 +22,5 @@ function PrintLoop(str) {
 }
 
 PrintLoop(str);
+
+export default PrintLoop

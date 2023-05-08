@@ -351,3 +351,10 @@ export const data2: Item2[] = [
     status: 2,
   },
 ];
+
+const duc = () => {
+  return (
+    <div>duc</div>
+  )
+}
+export default duc
