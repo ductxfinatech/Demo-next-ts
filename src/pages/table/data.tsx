@@ -7,6 +7,16 @@ export interface ParamObject {
   [key: string]: any;
 }
 
+export const TABLE_OPTIONS = {
+  enableRowSelection: true,
+  enableColumnResizing: true,
+  enableColumnOrdering: true,
+  enableColumnDragging: false,
+  enablePinning: true,
+  enableStickyHeader: true,
+  manualPagination: true,
+};
+
 export const dataListCollumn2 = [
   {
     key: "fundName",
@@ -16,7 +26,10 @@ export const dataListCollumn2 = [
     minSize: 240,
     maxSize: 500,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -27,7 +40,10 @@ export const dataListCollumn2 = [
     minSize: 110,
     maxSize: 500,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -38,7 +54,10 @@ export const dataListCollumn2 = [
     size: 200,
     maxSize: 500,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -49,7 +68,10 @@ export const dataListCollumn2 = [
     size: 120,
     maxSize: 500,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -60,7 +82,10 @@ export const dataListCollumn2 = [
     size: 230,
     maxSize: 500,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -71,7 +96,10 @@ export const dataListCollumn2 = [
     size: 120,
     maxSize: 500,
     align: "right",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "minmaxNumber",
   },
   {
@@ -82,7 +110,10 @@ export const dataListCollumn2 = [
     size: 160,
     maxSize: 500,
     align: "right",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "minmaxNumber",
   },
   {
@@ -93,7 +124,10 @@ export const dataListCollumn2 = [
     maxSize: 500,
     size: 100,
     align: "left",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: true,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "text",
   },
   {
@@ -104,7 +138,10 @@ export const dataListCollumn2 = [
     maxSize: 500,
     size: 80,
     align: "center",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: false,
+    enableSorting: true,
+    enableColumnActions: true,
     typeFilter: "select",
     listSelectOption: [
       { value: "", label: "- Tất cả -" },
@@ -121,7 +158,10 @@ export const dataListCollumn2 = [
     maxSize: 500,
     size: 60,
     align: "center",
-    copy: false,
+    enableClickToCopy: false,
+    enableResizing: false,
+    enableSorting: false,
+    enableColumnActions: false,
     typeFilter: "",
   },
 ];
@@ -353,8 +393,6 @@ export const data2: Item2[] = [
 ];
 
 const duc = () => {
-  return (
-    <div>duc</div>
-  )
-}
-export default duc
+  return <div>duc</div>;
+};
+export default duc;
