@@ -11,32 +11,77 @@ const TableCollumnAction = ({
   onSearch,
   closeMenu,
 }: any) => {
+
   useEffect(() => {
+    GenerateInput();
+  }, []);
+
+  const GenerateInput = () => {
     if (collumnOption.typeFilter.includes("minmax")) {
       let keyMin = collumnOption.key + "-min";
       let keyMax = collumnOption.key + "-max";
+      const checkMin = document.querySelector(
+        ".input-filter-" + keyMin + " input"
+      );
+      const checkMax = document.querySelector(
+        ".input-filter-" + keyMax + " input"
+      );
 
-      const inputElementMin = document.getElementsByName(
-        keyMin
-      )[0] as HTMLInputElement;
-      const inputElementMax = document.getElementsByName(
-        keyMax
-      )[0] as HTMLInputElement;
+      if (!checkMin) {
+        const Ele = document.querySelector(".temp-input-group #" + keyMin);
+        const Parent = document.querySelector(".input-filter-" + keyMin);
 
-      inputElementMin.value = filterParams[keyMin] ?? "";
-      inputElementMax.value = filterParams[keyMax] ?? "";
+        if (Ele && Parent) {
+          // const EleClone = Ele.cloneNode(true);
+          const EleClone = Ele;
+          Parent?.appendChild(EleClone);
+        }
+
+        const inputElementMin = document.querySelector(
+          ".input-filter-" + keyMin + " input"
+        ) as HTMLInputElement;
+
+        inputElementMin.value = filterParams[keyMin] ?? "";
+      }
+      if (!checkMax) {
+        const Ele = document.querySelector(".temp-input-group #" + keyMax);
+        const Parent = document.querySelector(".input-filter-" + keyMax);
+
+        if (Ele && Parent) {
+          // const EleClone = Ele.cloneNode(true);
+          const EleClone = Ele;
+          Parent.appendChild(EleClone);
+        }
+
+        const inputElementMax = document.querySelector(
+          ".input-filter-" + keyMax + " input"
+        ) as HTMLInputElement;
+
+        inputElementMax.value = filterParams[keyMax] ?? "";
+      }
     } else {
-      let key = collumnOption.key;
-      const inputElement = document.getElementsByName(
-        key
-      )[0] as HTMLInputElement;
-      inputElement.value = filterParams[key] ?? "";
-    }
-  }, []);
+      const check = document.querySelector(
+        ".input-filter-" + collumnOption.key + " input"
+      );
+      if (check) return;
 
-  // const handleChange = (event: any) => {
-  //   console.log(event.target.value)
-  // };
+      const Ele = document.querySelector(
+        ".temp-input-group #" + collumnOption.key
+      );
+      const Parent = document.querySelector(
+        ".input-filter-" + collumnOption.key
+      );
+      if (Ele && Parent) {
+        const EleClone = Ele.cloneNode(true);
+        Parent?.appendChild(Ele);
+      }
+
+      const inputElement = document.getElementsByName(
+        collumnOption.key
+      )[0] as HTMLInputElement;
+      inputElement.value = filterParams[collumnOption.key] ?? "";
+    }
+  };
 
   const handleClearFilter = (typeFilter: any, key: any) => {
     if (typeFilter.includes("minmax")) {
@@ -71,23 +116,26 @@ const TableCollumnAction = ({
       let keyMin = collumnOption.key + "-min";
       let keyMax = collumnOption.key + "-max";
 
-      const inputElementMin = document.getElementsByName(
-        keyMin
-      )[0] as HTMLInputElement;
-      const inputElementMax = document.getElementsByName(
-        keyMax
-      )[0] as HTMLInputElement;
+      const inputElementMin = document.querySelector(
+        ".input-filter-" + keyMin + " input"
+      ) as HTMLInputElement;
+      const inputElementMax = document.querySelector(
+        ".input-filter-" + keyMax + " input"
+      ) as HTMLInputElement;
+
       closeMenu();
       onSearch({
         [keyMin]: inputElementMin.value,
         [keyMax]: inputElementMax.value,
       });
     } else {
-      const inputElement = document.getElementsByName(
-        collumnOption.key
-      )[0] as HTMLInputElement;
-      closeMenu();
-      onSearch({ [collumnOption.key]: inputElement.value });
+      const inputElement = document.querySelector(
+        ".input-filter-" + collumnOption.key + " input"
+      ) as HTMLInputElement;
+      if (inputElement) {
+        closeMenu();
+        onSearch({ [collumnOption.key]: inputElement.value });
+      }
     }
   };
 
@@ -95,7 +143,7 @@ const TableCollumnAction = ({
     case "text": {
       return (
         <Box
-          className="filter-column"
+          className={"filter-column"}
           sx={{
             padding: "16px",
             width: "332px",
@@ -119,12 +167,14 @@ const TableCollumnAction = ({
             },
           }}
         >
-          <label htmlFor={collumnOption.key}>Tìm kiếm</label>
-          <input
+          <Box className={"input-filter-" + collumnOption.key}>
+            <label htmlFor={collumnOption.key}>Tìm kiếm</label>
+            {/* <input
             id={collumnOption.key}
             name={collumnOption.key}
             type="text"
-          />
+          /> */}
+          </Box>
           <Box
             sx={{
               marginTop: "24px",
@@ -204,21 +254,29 @@ const TableCollumnAction = ({
           }}
         >
           <Grid container columns={12} columnSpacing={3} sx={{}}>
-            <Grid item xs={6}>
+            <Grid
+              className={"input-filter-" + collumnOption.key + "-min"}
+              item
+              xs={6}
+            >
               <label htmlFor={collumnOption.key + "-min"}>Min</label>
-              <input
+              {/* <input
                 id={collumnOption.key + "-min"}
                 name={collumnOption.key + "-min"}
                 type="number"
-              />
+              /> */}
             </Grid>
-            <Grid item xs={6}>
+            <Grid
+              className={"input-filter-" + collumnOption.key + "-max"}
+              item
+              xs={6}
+            >
               <label htmlFor={collumnOption.key + "-max"}>Max</label>
-              <input
+              {/* <input
                 id={collumnOption.key + "-max"}
                 name={collumnOption.key + "-max"}
                 type="number"
-              />
+              /> */}
             </Grid>
           </Grid>
           <Box
@@ -300,21 +358,29 @@ const TableCollumnAction = ({
           }}
         >
           <Grid container columns={12} rowSpacing={2.5} sx={{}}>
-            <Grid item xs={12}>
+            <Grid
+              className={"input-filter-" + collumnOption.key + "-min"}
+              item
+              xs={12}
+            >
               <label htmlFor={collumnOption.key + "-min"}>Min</label>
-              <input
+              {/* <input
                 id={collumnOption.key + "-min"}
                 name={collumnOption.key + "-min"}
                 type="date"
-              />
+              /> */}
             </Grid>
-            <Grid item xs={12}>
+            <Grid
+              className={"input-filter-" + collumnOption.key + "-max"}
+              item
+              xs={12}
+            >
               <label htmlFor={collumnOption.key + "-max"}>Max</label>
-              <input
+              {/* <input
                 id={collumnOption.key + "-max"}
                 name={collumnOption.key + "-max"}
                 type="date"
-              />
+              /> */}
             </Grid>
           </Grid>
           <Box
@@ -396,18 +462,15 @@ const TableCollumnAction = ({
           }}
         >
           <Grid container columns={12} sx={{}}>
-            <Grid item xs={12}>
+            <Grid className={"input-filter-" + collumnOption.key} item xs={12}>
               <label htmlFor={collumnOption.key}>Bộ lọc</label>
-              <select
-                name={collumnOption.key}
-                id={collumnOption.key}
-              >
+              {/* <select name={collumnOption.key} id={collumnOption.key}>
                 {collumnOption.listSelectOption?.map((option: any) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </Grid>
           </Grid>
           <Box

@@ -65,6 +65,7 @@ import MaterialReactTable, {
   MRT_SortingState,
 } from "material-react-table";
 
+
 const Example = () => {
   // -------------- Data and Fetching state -----------------
   const [listItem, setListItem] = useState<any[]>(data2);
@@ -185,6 +186,7 @@ const Example = () => {
         enableResizing: !(item.type === "setting" || item.type === "status"),
         enableSorting: !(item.type === "setting"),
         enableColumnActions: item.type !== "setting",
+        positionActionsColumn: "last",
         debugColumns: true,
         Header: (cell) => (
           <Box
@@ -390,7 +392,7 @@ const Example = () => {
             globalFilter,
             sorting,
             showGlobalFilter: true,
-            showColumnFilters: true,
+            // showColumnFilters: true,
             // isLoading,
             showSkeletons: isLoading,
           }}
@@ -475,10 +477,10 @@ const Example = () => {
                   padding: "0",
                 },
 
-                "& .MuiCollapse-root.MuiCollapse-vertical.MuiCollapse-entered":
-                  {
-                    display: "none",
-                  },
+                // "& .MuiCollapse-root.MuiCollapse-vertical.MuiCollapse-entered":
+                //   {
+                //     // display: "none",
+                //   },
               },
               "& th:nth-of-type(1)": {
                 borderWidth: "1px 1px 2px 1px",
@@ -532,14 +534,15 @@ const Example = () => {
               <TableCollumnAction
                 collumnOption={collumnOption}
                 filterParams={filterParams}
-                // onSearch={handleFilterFormChange}
-                // closeMenu={closeMenu}
+                onSearch={handleFilterFormChange}
+                closeMenu={closeMenu}
                 key={collumnOption.key}
               ></TableCollumnAction>,
             ];
           }}
         />
       </Box>
+      <GenerateInputGroup dataListCollumn={dataListCollumn} />
       <style lang="scss">
         {`
                 div:has(.filter-column) {
@@ -558,3 +561,78 @@ const Example = () => {
 };
 
 export default Example;
+
+const GenerateInputGroup = (props: any) => {
+  return (
+    <Box className={"temp-input-group"}>
+      {props.dataListCollumn.map((item: any) => {
+        switch (item.typeFilter) {
+          case "minmaxNumber": {
+            return (
+              <span key={Math.floor(Math.random() * 1000) + 1}>
+                <input
+                  className={"temp-input"}
+                  type="number"
+                  id={item.key + "-min"}
+                  name={item.key + "-min"}
+                />
+                <input
+                  className={"temp-input"}
+                  type="number"
+                  id={item.key + "-max"}
+                  name={item.key + "-max"}
+                />
+              </span>
+            );
+          }
+          case "minmaxDate": {
+            return (
+              <span key={Math.floor(Math.random() * 1000) + 1}>
+                <input
+                  className={"temp-input"}
+                  type="date"
+                  id={item.key + "-min"}
+                  name={item.key + "-min"}
+                />
+                <input
+                  className={"temp-input"}
+                  type="date"
+                  id={item.key + "-max"}
+                  name={item.key + "-max"}
+                />
+              </span>
+            );
+          }
+          case "select": {
+            return (
+              <span key={Math.floor(Math.random() * 1000) + 1}>
+                <select name={item.key} id={item.key} className={"temp-input"}>
+                  {item.listSelectOption?.map((option: any) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            );
+          }
+          case "text": {
+            return (
+              <span key={Math.floor(Math.random() * 1000) + 1}>
+                <input
+                  className={"temp-input"}
+                  type="text"
+                  id={item.key}
+                  name={item.key}
+                />
+              </span>
+            );
+          }
+          default: {
+            return <></>;
+          }
+        }
+      })}
+    </Box>
+  );
+};
